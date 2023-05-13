@@ -1,15 +1,16 @@
 import numpy as np
 import random
-import matplotlib.pyplot as plt
 
 
 def natural_selection(alleles, generations):
     dom_list = []
     res_list = []
+    gen_list = []
     for gen in range(generations):
         pairs = []
         allele_dom_count = 0
         allele_res_count = 0
+        gen_list.append(alleles)
         while len(alleles) > 0:
             allele1 = random.choice(alleles)
             if allele1 == 'A':
@@ -34,9 +35,6 @@ def natural_selection(alleles, generations):
         dom_list.append(allele_dom_freq)
         allele_res_freq = allele_res_count / (allele_dom_count + allele_res_count)
         res_list.append(allele_res_freq)
-        plt.plot(dom_list)
-        plt.plot(res_list)
-        plt.pause(0.5)
 
         next_generation = []
         for pair in pairs:
@@ -54,8 +52,7 @@ def natural_selection(alleles, generations):
 
         alleles = next_generation
 
-    plt.show()
-    return alleles
+    return gen_list, dom_list, res_list
 
 
 def sexual_selection(alleles):
