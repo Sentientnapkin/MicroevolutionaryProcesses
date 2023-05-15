@@ -60,11 +60,14 @@ def sexual_selection(alleles):
 
 
 def artificial_selection(alleles, generations):
+    dom_list = []
+    res_list = []
+    gen_list = []
     for gen in range(generations):
-        print(alleles)
         pairs = []
         allele_dom_count = 0
         allele_res_count = 0
+        gen_list.append(alleles)
         while len(alleles) > 0:
             allele1 = random.choice(alleles)
             if allele1 == 'A':
@@ -86,7 +89,9 @@ def artificial_selection(alleles, generations):
             pairs.append([allele1, allele2])
 
         allele_dom_freq = allele_dom_count / (allele_dom_count + allele_res_count)
+        dom_list.append(allele_dom_freq)
         allele_res_freq = allele_res_count / (allele_dom_count + allele_res_count)
+        res_list.append(allele_res_freq)
 
         next_generation = []
         for pair in pairs:
@@ -97,9 +102,10 @@ def artificial_selection(alleles, generations):
                 next_generation.append(pair[0])
                 next_generation.append(pair[1])
 
+
         alleles = next_generation
 
-    return alleles
+    return gen_list, dom_list, res_list
 
 
 def founder_effect(alleles, generations):
@@ -111,13 +117,20 @@ def bottleneck_effect(alleles, generations):
 
 
 def genetic_drift(alleles, generations, survivor_count):
-    alleles = standard_reproduction(alleles)
+    dom_list = []
+    res_list = []
+    gen_list = []
+    gen_list.append(alleles)
+    alleles, dom_freq, res_freq = standard_reproduction(alleles)
+    dom_list.append(dom_freq)
+    res_list.append(res_freq)
 
     survivors = []
     for i in range(survivor_count):
         survivors.append(alleles[np.random.randint(0, len(alleles))])
 
     alleles = survivors
+    gen_list.append(alleles)
 
     allele_dom_count = 0
     allele_res_count = 0
@@ -138,7 +151,9 @@ def genetic_drift(alleles, generations, survivor_count):
         pairs.append([allele1, allele2])
 
     allele_dom_freq = allele_dom_count / (allele_dom_count + allele_res_count)
+    dom_list.append(allele_dom_freq)
     allele_res_freq = allele_res_count / (allele_dom_count + allele_res_count)
+    res_list.append(allele_res_freq)
 
     next_generation = []
     for pair in pairs:
@@ -152,18 +167,42 @@ def genetic_drift(alleles, generations, survivor_count):
             next_generation.append(pair[rand])
 
     alleles = next_generation
+    gen_list.append(alleles)
 
     for gen in range(generations - 2):
-        alleles = standard_reproduction(alleles)
+        alleles, dom_freq, res_freq = standard_reproduction(alleles)
+        dom_list.append(dom_freq)
+        res_list.append(res_freq)
+        gen_list.append(alleles)
+
+    gen_list.pop()     
+
+    return gen_list, dom_list, res_list
 
 
 def gene_flow(alleles, generations):
-    alleles = gene_flow_wrapper(alleles)
+    gen_list = []
+    dom_list = []
+    res_list = []
+    new_list = []
+    gen_list.append(alleles)
+    alleles, dom_freq, res_freq, new_freq = gene_flow_wrapper(alleles)
+    dom_list.append(dom_freq)
+    res_list.append(res_freq)
+    new_list.append(new_freq)
     for i in range(6):
         alleles.append('B')
 
+    gen_list.append(alleles)
     for gen in range(generations - 1):
-        alleles = gene_flow_wrapper(alleles)
+        alleles, dom_freq, res_freq, new_freq = gene_flow_wrapper(alleles)
+        dom_list.append(dom_freq)
+        res_list.append(res_freq)
+        new_list.append(new_freq)
+        gen_list.append(alleles)
+
+    gen_list.pop()
+    return gen_list, dom_list, res_list, new_list    
 
 
 def gene_flow_wrapper(alleles):
@@ -171,7 +210,6 @@ def gene_flow_wrapper(alleles):
     allele_dom_count = 0
     allele_res_count = 0
     allele_new_count = 0
-    print(alleles)
     while len(alleles) > 0:
         allele1 = random.choice(alleles)
         if allele1 == 'A':
@@ -199,9 +237,6 @@ def gene_flow_wrapper(alleles):
     allele_dom_freq = allele_dom_count / (allele_dom_count + allele_res_count + allele_new_count)
     allele_res_freq = allele_res_count / (allele_dom_count + allele_res_count + allele_new_count)
     allele_new_freq = allele_new_count / (allele_dom_count + allele_res_count + allele_new_count)
-    print(allele_dom_freq)
-    print(allele_res_freq)
-    print(allele_new_freq)
 
     next_generation = []
     for pair in pairs:
@@ -215,18 +250,31 @@ def gene_flow_wrapper(alleles):
             next_generation.append(pair[rand])
 
     alleles = next_generation
-    return alleles
+    return alleles, allele_dom_freq, allele_res_freq, allele_new_freq
 
 
 def mutation(alleles, generations):
-    alleles = mutation_wrapper(alleles)
+    gen_list = []
+    dom_list = []
+    res_list = []
+    new_list = []
+    gen_list.append(alleles)
+    alleles, dom_freq, res_freq, new_freq = mutation_wrapper(alleles)
+    dom_list.append(dom_freq)
+    res_list.append(res_freq)
+    new_list.append(new_freq)
     alleles.remove(random.choice(alleles))
     alleles.append('M')
 
+    gen_list.append(alleles)
     for gen in range(generations - 1):
-        alleles = mutation_wrapper(alleles)
+        alleles, dom_freq, res_freq, new_freq = mutation_wrapper(alleles)
+        dom_list.append(dom_freq)
+        res_list.append(res_freq)
+        new_list.append(new_freq)
 
-    return alleles
+    gen_list.pop()
+    return gen_list, dom_list, res_list, new_list
 
 
 def mutation_wrapper(alleles):
@@ -234,7 +282,6 @@ def mutation_wrapper(alleles):
     allele_dom_count = 0
     allele_res_count = 0
     allele_mut_count = 0
-    print(alleles)
     while len(alleles) > 0:
         allele1 = random.choice(alleles)
         if allele1 == 'A':
@@ -262,9 +309,6 @@ def mutation_wrapper(alleles):
     allele_dom_freq = allele_dom_count / (allele_dom_count + allele_res_count + allele_mut_count)
     allele_res_freq = allele_res_count / (allele_dom_count + allele_res_count + allele_mut_count)
     allele_mut_freq = allele_mut_count / (allele_dom_count + allele_res_count + allele_mut_count)
-    print(allele_dom_freq)
-    print(allele_res_freq)
-    print(allele_mut_freq)
 
     next_generation = []
     for pair in pairs:
@@ -281,11 +325,10 @@ def mutation_wrapper(alleles):
                 next_generation.append(pair[rand])
 
     alleles = next_generation
-    return alleles
+    return alleles, allele_dom_freq, allele_res_freq, allele_mut_freq
 
 
 def standard_reproduction(alleles):
-    print(alleles)
     pairs = []
     allele_dom_count = 0
     allele_res_count = 0
@@ -311,7 +354,6 @@ def standard_reproduction(alleles):
 
     allele_dom_freq = allele_dom_count / (allele_dom_count + allele_res_count)
     allele_res_freq = allele_res_count / (allele_dom_count + allele_res_count)
-    print(allele_dom_freq, allele_res_freq)
 
     next_generation = []
     for pair in pairs:
@@ -325,4 +367,4 @@ def standard_reproduction(alleles):
             next_generation.append(pair[rand])
 
     alleles = next_generation
-    return alleles
+    return alleles, allele_dom_freq, allele_res_freq
