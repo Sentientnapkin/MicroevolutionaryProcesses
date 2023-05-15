@@ -3,6 +3,7 @@ import sys
 import MicroevolutionaryProcesses as mp
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+import matplotlib.backends.backend_agg as agg
 import pygame
 
 def plot_dynamic_two_alleles(y_list1, y_list2, title):
@@ -21,12 +22,13 @@ def plot_dynamic_two_alleles(y_list1, y_list2, title):
         y2.append(y_list2[i])
         ax.plot(x, y1, color="red", label="Dominant Allele")
         ax.plot(x, y2, color="yellow", label="Recessive Allele")
-        ax.legend(loc="upper center", bbox_to_anchor=(0.5,1.15),
+        ax.legend(loc="upper center", bbox_to_anchor=(0.1,1.15),
                   fancybox=True, shadow=True)
 
     anim = FuncAnimation(fig=fig, func=animate, frames=20, repeat=False)
+    anim.save('dynamic_two_alleles.gif')
 
-    plt.show()
+    # plt.show()
 
     return fig, ax
 
@@ -48,7 +50,7 @@ def plot_dynamic_three_alleles(y_list1, y_list2, y_list3, title):
         ax.plot(x, y1, color="red", label="Dominant Allele")
         ax.plot(x, y2, color="yellow", label="Recessive Allele")
         ax.plot(x, y3, color="blue", label="New Allele")
-        ax.legend(loc="upper center", bbox_to_anchor=(0.5,1.15),
+        ax.legend(loc="upper center", bbox_to_anchor=(0.1,1.15),
                   fancybox=True, shadow=True)
 
     anim = FuncAnimation(fig=fig, func=animate, frames=20, repeat=False)
@@ -82,11 +84,25 @@ gen_list, dom_list, res_list = mp.natural_selection(['A', 'A', 'A', 'A', 'A', 'A
 fig, ax = plot_dynamic_two_alleles(dom_list, res_list, "")
 # fig, ax = plot_dynamic_three_alleles(dom_list, res_list, new_list, "")
 
-# Convert the Matplotlib figure to a Pygame surface.
-surface = pygame.surfarray.make_surface(fig.canvas.tostring_rgb())
+canvas = agg.FigureCanvasAgg(fig)
+canvas.draw()
+renderer = canvas.get_renderer()
+raw_data = renderer.tostring_rgb()
+
+pygame.init()
+
+window = pygame.display.set_mode((600, 600))
+screen = pygame.display.get_surface()
+ 
+# set the pygame window name
+pygame.display.set_caption('image')
+
+size = canvas.get_width_height()
+
+surf = pygame.image.fromstring(raw_data, size, "RGB")
 
 # Blit the Pygame surface to the Pygame window.
-pygame.display.blit(surface, (0, 0))
+screen.blit(surf, (0, 0))
 
 # Update the Pygame window.
 pygame.display.update()
@@ -97,3 +113,9 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_BACKSPACE:
+                text = text[:-1]
+            else:
+                text += event.unicode
