@@ -233,7 +233,7 @@ while running:
         if selection_type != "" and dom_allele_input.text != "" and res_allele_input.text != "" and generations_input.text != "":
             start_button.draw(screen)
         selection_type_text = font.render("Microevolutionary Process: " + selection_type, True, (0, 0, 0))
-        screen.blit(selection_type_text, (10, 300))
+        screen.blit(selection_type_text, (10, 280))
         screen.blit(dom_allele_input_text, (10, 20))
         screen.blit(res_allele_input_text, (10, 60))
         screen.blit(generations_input_text, (10, 100))
