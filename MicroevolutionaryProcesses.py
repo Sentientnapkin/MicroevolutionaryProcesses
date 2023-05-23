@@ -1,6 +1,6 @@
 import numpy as np
 import random
-
+import copy
 
 def natural_selection(alleles, generations):
     dom_list = []
@@ -10,7 +10,7 @@ def natural_selection(alleles, generations):
         pairs = []
         allele_dom_count = 0
         allele_res_count = 0
-        gen_list.append(alleles)
+        gen_list.append(copy.deepcopy(alleles))
         while len(alleles) > 0:
             allele1 = random.choice(alleles)
             if allele1 == 'A':
@@ -67,7 +67,7 @@ def artificial_selection(alleles, generations):
         pairs = []
         allele_dom_count = 0
         allele_res_count = 0
-        gen_list.append(alleles)
+        gen_list.append(copy.deepcopy(alleles))
         while len(alleles) > 0:
             allele1 = random.choice(alleles)
             if allele1 == 'A':
@@ -120,7 +120,7 @@ def genetic_drift(alleles, generations, survivor_count):
     dom_list = []
     res_list = []
     gen_list = []
-    gen_list.append(alleles)
+    gen_list.append(copy.deepcopy(alleles))
     alleles, dom_freq, res_freq = standard_reproduction(alleles)
     dom_list.append(dom_freq)
     res_list.append(res_freq)
@@ -130,7 +130,7 @@ def genetic_drift(alleles, generations, survivor_count):
         survivors.append(alleles[np.random.randint(0, len(alleles))])
 
     alleles = survivors
-    gen_list.append(alleles)
+    gen_list.append(copy.deepcopy(alleles))
 
     allele_dom_count = 0
     allele_res_count = 0
@@ -167,13 +167,13 @@ def genetic_drift(alleles, generations, survivor_count):
             next_generation.append(pair[rand])
 
     alleles = next_generation
-    gen_list.append(alleles)
+    gen_list.append(copy.deepcopy(alleles))
 
     for gen in range(generations - 2):
         alleles, dom_freq, res_freq = standard_reproduction(alleles)
         dom_list.append(dom_freq)
         res_list.append(res_freq)
-        gen_list.append(alleles)
+        gen_list.append(copy.deepcopy(alleles))
 
     gen_list.pop()     
 
@@ -185,21 +185,21 @@ def gene_flow(alleles, generations):
     dom_list = []
     res_list = []
     new_list = []
-    gen_list.append(alleles)
+    gen_list.append(copy.deepcopy(alleles))
     alleles, dom_freq, res_freq, new_freq = gene_flow_wrapper(alleles)
     dom_list.append(dom_freq)
     res_list.append(res_freq)
     new_list.append(new_freq)
     for i in range(6):
-        alleles.append('B')
+        alleles.append('M')
 
-    gen_list.append(alleles)
+    gen_list.append(copy.deepcopy(alleles))
     for gen in range(generations - 1):
         alleles, dom_freq, res_freq, new_freq = gene_flow_wrapper(alleles)
         dom_list.append(dom_freq)
         res_list.append(res_freq)
         new_list.append(new_freq)
-        gen_list.append(alleles)
+        gen_list.append(copy.deepcopy(alleles))
 
     gen_list.pop()
     return gen_list, dom_list, res_list, new_list    
@@ -258,7 +258,7 @@ def mutation(alleles, generations):
     dom_list = []
     res_list = []
     new_list = []
-    gen_list.append(alleles)
+    gen_list.append(copy.deepcopy(alleles))
     alleles, dom_freq, res_freq, new_freq = mutation_wrapper(alleles)
     dom_list.append(dom_freq)
     res_list.append(res_freq)
@@ -266,9 +266,10 @@ def mutation(alleles, generations):
     alleles.remove(random.choice(alleles))
     alleles.append('M')
 
-    gen_list.append(alleles)
+    gen_list.append(copy.deepcopy(alleles))
     for gen in range(generations - 1):
         alleles, dom_freq, res_freq, new_freq = mutation_wrapper(alleles)
+        gen_list.append(copy.deepcopy(alleles))
         dom_list.append(dom_freq)
         res_list.append(res_freq)
         new_list.append(new_freq)
