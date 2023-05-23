@@ -58,69 +58,13 @@ class Button:
         text_rect = text_surface.get_rect(center=self.rect.center)
         screen.blit(text_surface, text_rect)
 
-
-def plot_dynamic_two_alleles(y_list1, y_list2, title):
-
-    fig, ax = plt.subplots()
-
-    x,y1,y2 = [],[],[]
-
-    def animate(i):
-        ax.clear()
-        ax.set_xlabel("Generation")
-        ax.set_ylabel("Allele Frequency")
-        ax.set_title(title)
-        x.append(i)
-        y1.append(y_list1[i])
-        y2.append(y_list2[i])
-        ax.plot(x, y1, color="red", label="Dominant Allele")
-        ax.plot(x, y2, color="yellow", label="Recessive Allele")
-        ax.legend(loc="upper center", bbox_to_anchor=(0.1,1.15),
-                  fancybox=True, shadow=True)
-
-    # anim = FuncAnimation(fig=fig, func=animate, frames=20, repeat=False)
-    # anim.save('dynamic_two_alleles.gif')
-
-    # plt.show()
-
-    return fig, ax
-
-
-def plot_dynamic_three_alleles(y_list1, y_list2, y_list3, title):
-
-    fig, ax = plt.subplots()
-
-    x,y1,y2,y3 = [],[],[],[]
-    def animate(i):
-        ax.clear()
-        ax.set_xlabel("Generation")
-        ax.set_ylabel("Allele Frequency")
-        ax.set_title(title)
-        x.append(i)
-        y1.append(y_list1[i])
-        y2.append(y_list2[i])
-        y3.append(y_list3[i])
-        ax.plot(x, y1, color="red", label="Dominant Allele")
-        ax.plot(x, y2, color="yellow", label="Recessive Allele")
-        ax.plot(x, y3, color="blue", label="New Allele")
-        ax.legend(loc="upper center", bbox_to_anchor=(0.1,1.15),
-                  fancybox=True, shadow=True)
-
-    # anim = FuncAnimation(fig=fig, func=animate, frames=20, repeat=False)
-
-    # plt.show()
-
-    return fig, ax
-
-
-index = 0
 x,y1,y2, y3 = [],[],[], []
 def update_graph_two_alleles(title):
     ax.clear()
     ax.set_xlabel("Generation")
     ax.set_ylabel("Allele Frequency")
     ax.set_title(title)
-    x.append(index)
+    x.append(index+1)
     y1.append(dom_list[index])
     y2.append(res_list[index])
     ax.plot(x, y1, color="red", label="Dominant Allele")
@@ -135,7 +79,7 @@ def update_graph_three_alleles(title):
     ax.set_xlabel("Generation")
     ax.set_ylabel("Allele Frequency")
     ax.set_title(title)
-    x.append(index)
+    x.append(index+1)
     y1.append(dom_list[index])
     y2.append(res_list[index])
     y3.append(new_list[index])
@@ -189,16 +133,10 @@ def start_handler():
 
 
 def start_simulation(dom_allele_count, res_allele_count, gen_count):
-    global index
-    global dom_list
-    global res_list
-    global gen_list
-    global new_list
-    global selection_type
-    global ready_to_run
-    global fig
-    global ax
-    index = 0
+    global index, dom_list, res_list, gen_list, new_list, selection_type, ready_to_run
+    global fig, ax
+    global y1, y2, y3, x
+    index = -1
     initial_pop = []
     for i in range(dom_allele_count):
         initial_pop.append('A')
@@ -208,7 +146,7 @@ def start_simulation(dom_allele_count, res_allele_count, gen_count):
         gen_list, dom_list, res_list, new_list = selection_types[selection_type](initial_pop, gen_count)    
     else:
         gen_list, dom_list, res_list = selection_types[selection_type](initial_pop, gen_count)
-    fig, ax = plot_dynamic_two_alleles(dom_list, res_list, "")
+    x, y1, y2, y3 = [],[],[], []
     ready_to_run = True
 
 def toggle_ready_to_run():
@@ -225,13 +163,25 @@ font = pygame.font.SysFont('Helvetica', 15)
 
 # Color Scheme
 text_color = pygame.Color(0, 0, 0)  # Black
-text_hover_color = pygame.Color(255, 255, 255)  # White
+text_hover_color = pygame.Color(255, 255, 255)  # White3
 active_color = pygame.Color(102, 204, 204)  # Aqua
 inactive_color = pygame.Color(200, 200, 200)  # Light Gray
 background_color = pygame.Color(245, 245, 245)  # Off-White
 button_color = pygame.Color(0, 153, 255)  # Sky Blue
 button_hover_color = pygame.Color(0, 102, 204)  # Deep Blue
 
+dom_text, res_text, new_text, gen_text = None, None, None, None
+
+dom_allele_count = 0
+res_allele_count = 0
+selection_type = ""
+
+dom_list, res_list, new_list, gen_list = [], [], [], []
+fig, ax = plt.subplots()
+resized_graph_surface = None
+
+ready_to_run = False
+running = True
 
 dom_allele_input = InputBox(175, 10, 300, 32)
 res_allele_input = InputBox(175, 50, 300, 32)
@@ -249,27 +199,9 @@ fe_button = Button(145, 215, 125, 60, "Founder Effect", font, lambda: selection_
 gf_button = Button(280, 215, 125, 60, "Gene Flow", font, lambda: selection_handler("Gene Flow"))
 mu_button = Button(415, 215, 125, 60, "Mutation", font, lambda: selection_handler("Mutation"))
 
-restart_button = Button(10, 300, 200, 50, "Restart", font, toggle_ready_to_run)
+restart_button = Button(10, 300, 200, 50, "Go Back", font, toggle_ready_to_run)
 end_button = Button(10, 375, 200, 50, "End", font, lambda: pygame.quit())
 
-dom_text = None
-res_text = None
-new_text = None
-gen_text = None
-
-dom_allele_count = 0
-res_allele_count = 0
-selection_type = ""
-
-dom_list = []
-res_list = []
-gen_list = []
-new_list = []
-fig = None
-ax = None
-
-ready_to_run = False
-running = True
 while running:
     if not ready_to_run:
         for event in pygame.event.get():
@@ -300,11 +232,13 @@ while running:
         end_button.draw(screen)
         if selection_type != "" and dom_allele_input.text != "" and res_allele_input.text != "" and generations_input.text != "":
             start_button.draw(screen)
+        selection_type_text = font.render("Microevolutionary Process: " + selection_type, True, (0, 0, 0))
+        screen.blit(selection_type_text, (10, 300))
         screen.blit(dom_allele_input_text, (10, 20))
         screen.blit(res_allele_input_text, (10, 60))
         screen.blit(generations_input_text, (10, 100))
 
-    else:    
+    else:  
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -312,7 +246,7 @@ while running:
             end_button.handle_event(event)
 
         font = pygame.font.Font(None, 30)
-        screen.fill(background_color)        
+        screen.fill(background_color)   
         if index < len(dom_list)-1:
             index += 1
         else:
@@ -322,24 +256,25 @@ while running:
 
         #3 alleles
         if selection_type == "Mutation" or selection_type == "Gene Flow":
-            # Update the graph and get the updated graph object
-            graph = update_graph_three_alleles(selection_type)
+            if index <= len(dom_list)-1:
+                # Update the graph and get the updated graph object
+                graph = update_graph_three_alleles(selection_type)
 
-            # Convert the Matplotlib figure to a Pygame surface
-            canvas = FigureCanvas(graph.figure)
-            canvas.draw()
+                # Convert the Matplotlib figure to a Pygame surface
+                canvas = FigureCanvas(graph.figure)
+                canvas.draw()
 
-            # Convert the canvas to a Pygame surface
-            graph_array = np.frombuffer(canvas.renderer.tostring_rgb(), dtype=np.uint8)
-            graph_array = graph_array.reshape((1280,960)[::-1] + (3,))
+                # Convert the canvas to a Pygame surface
+                graph_array = np.frombuffer(canvas.renderer.tostring_rgb(), dtype=np.uint8)
+                graph_array = graph_array.reshape((1280,960)[::-1] + (3,))
 
-            # Create a Pygame surface from the array
-            graph_surface = pygame.surfarray.make_surface(graph_array)
+                # Create a Pygame surface from the array
+                graph_surface = pygame.surfarray.make_surface(graph_array)
 
-            graph_surface = pygame.transform.flip(graph_surface, False, True)
-            graph_surface = pygame.transform.rotate(graph_surface, 270)
+                graph_surface = pygame.transform.flip(graph_surface, False, True)
+                graph_surface = pygame.transform.rotate(graph_surface, 270)
 
-            resized_graph_surface = pygame.transform.scale(graph_surface, (640, 480))
+                resized_graph_surface = pygame.transform.scale(graph_surface, (640, 480))
 
             # Blit the graph surface onto the Pygame window
             screen.blit(resized_graph_surface, (300, 0))
@@ -365,24 +300,25 @@ while running:
 
         #2 alleles
         else:
-            # Update the graph and get the updated graph object
-            graph = update_graph_two_alleles(selection_type)
+            if index <= len(dom_list)-1:
+                # Update the graph and get the updated graph object
+                graph = update_graph_two_alleles(selection_type)
 
-            # Convert the Matplotlib figure to a Pygame surface
-            canvas = FigureCanvas(graph.figure)
-            canvas.draw()
+                # Convert the Matplotlib figure to a Pygame surface
+                canvas = FigureCanvas(graph.figure)
+                canvas.draw()
 
-            # Convert the canvas to a Pygame surface
-            graph_array = np.frombuffer(canvas.renderer.tostring_rgb(), dtype=np.uint8)
-            graph_array = graph_array.reshape((1280,960)[::-1] + (3,))
+                # Convert the canvas to a Pygame surface
+                graph_array = np.frombuffer(canvas.renderer.tostring_rgb(), dtype=np.uint8)
+                graph_array = graph_array.reshape((1280,960)[::-1] + (3,))
 
-            # Create a Pygame surface from the array
-            graph_surface = pygame.surfarray.make_surface(graph_array)
+                # Create a Pygame surface from the array
+                graph_surface = pygame.surfarray.make_surface(graph_array)
 
-            graph_surface = pygame.transform.flip(graph_surface, False, True)
-            graph_surface = pygame.transform.rotate(graph_surface, 270)
+                graph_surface = pygame.transform.flip(graph_surface, False, True)
+                graph_surface = pygame.transform.rotate(graph_surface, 270)
 
-            resized_graph_surface = pygame.transform.scale(graph_surface, (640, 480))
+                resized_graph_surface = pygame.transform.scale(graph_surface, (640, 480))
 
             # Blit the graph surface onto the Pygame window
             screen.blit(resized_graph_surface, (300, 0))
