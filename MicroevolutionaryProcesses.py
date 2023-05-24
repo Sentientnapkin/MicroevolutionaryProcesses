@@ -185,16 +185,11 @@ def gene_flow(alleles, generations):
     dom_list = []
     res_list = []
     new_list = []
-    gen_list.append(copy.deepcopy(alleles))
-    alleles, dom_freq, res_freq, new_freq = gene_flow_wrapper(alleles)
-    dom_list.append(dom_freq)
-    res_list.append(res_freq)
-    new_list.append(new_freq)
     for i in range(6):
-        alleles.append('M')
+        alleles.append('B')
 
     gen_list.append(copy.deepcopy(alleles))
-    for gen in range(generations - 1):
+    for gen in range(generations):
         alleles, dom_freq, res_freq, new_freq = gene_flow_wrapper(alleles)
         dom_list.append(dom_freq)
         res_list.append(res_freq)
@@ -258,16 +253,11 @@ def mutation(alleles, generations):
     dom_list = []
     res_list = []
     new_list = []
-    gen_list.append(copy.deepcopy(alleles))
-    alleles, dom_freq, res_freq, new_freq = mutation_wrapper(alleles)
-    dom_list.append(dom_freq)
-    res_list.append(res_freq)
-    new_list.append(new_freq)
     alleles.remove(random.choice(alleles))
     alleles.append('M')
 
     gen_list.append(copy.deepcopy(alleles))
-    for gen in range(generations - 1):
+    for gen in range(generations):
         alleles, dom_freq, res_freq, new_freq = mutation_wrapper(alleles)
         gen_list.append(copy.deepcopy(alleles))
         dom_list.append(dom_freq)

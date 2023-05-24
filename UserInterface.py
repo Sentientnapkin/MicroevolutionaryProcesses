@@ -67,6 +67,7 @@ def update_graph_two_alleles(title):
     x.append(index+1)
     y1.append(dom_list[index])
     y2.append(res_list[index])
+    y3.append(new_list[index])
     ax.plot(x, y1, color="red", label="Dominant Allele")
     ax.plot(x, y2, color="yellow", label="Recessive Allele")
     ax.legend(loc="upper center", bbox_to_anchor=(0.1,1.15),
@@ -122,36 +123,70 @@ def start_handler():
     global dom_allele_count
     global res_allele_count
     global ready_to_run
+    global era_list
     dom_allele_count = int(dom_allele_input.text)
     res_allele_count = int(res_allele_input.text)
-    gen_count = int(generations_input.text)
     dom_allele_input.text = ''
     res_allele_input.text = ''
     generations_input.text = ''
     ready_to_run = True
-    start_simulation(dom_allele_count, res_allele_count, gen_count)
+    start_simulation(dom_allele_count, res_allele_count)
 
+def add_handler():
+    global era_list
+    gen_count = int(generations_input.text)
+    generations_input.text = ''
+    era_list.append((selection_type, gen_count))
 
-def start_simulation(dom_allele_count, res_allele_count, gen_count):
+def start_simulation(dom_allele_count, res_allele_count):
     global index, dom_list, res_list, gen_list, new_list, selection_type, ready_to_run
     global fig, ax
     global y1, y2, y3, x
+    global era_list
+    g_list, d_list, r_list, n_list = [], [], [], []
     index = -1
     initial_pop = []
     for i in range(dom_allele_count):
         initial_pop.append('A')
     for i in range(res_allele_count):
         initial_pop.append('a')    
-    if selection_type == "Mutation" or selection_type == "Gene Flow":  
-        gen_list, dom_list, res_list, new_list = selection_types[selection_type](initial_pop, gen_count)    
-    else:
-        gen_list, dom_list, res_list = selection_types[selection_type](initial_pop, gen_count)
+    for era in era_list:
+        if era[0] == "Mutation" or era[0] == "Gene Flow":  
+            g_list, d_list, r_list, n_list = selection_types[era[0]](initial_pop, era[1])    
+        else:
+            g_list, d_list, r_list = selection_types[era[0]](initial_pop, era[1])
+        for i in range(len(g_list)):
+            title_list.append(era[0])
+            gen_list.append(g_list[i])
+            dom_list.append(d_list[i])
+            res_list.append(r_list[i])
+            if era[0] == "Mutation" or era[0] == "Gene Flow":
+                new_list.append(n_list[i])
+            else:
+                new_list.append(0)
+        g_list, d_list, r_list, n_list = [], [], [], []    
+        initial_pop = gen_list[-1]
+
     x, y1, y2, y3 = [],[],[], []
+    era_list = []   
     ready_to_run = True
 
 def toggle_ready_to_run():
     global ready_to_run
+    global gen_list, dom_list, res_list, new_list, title_list
+    screen.fill(background_color)
     ready_to_run = not ready_to_run
+    if not ready_to_run:
+        gen_list, dom_list, res_list, new_list, title_list = [], [], [], [], []
+        
+
+def draw_eras():
+    global era_list
+    era_title_text = font.render("Eras", True, (0, 0, 0))
+    screen.blit(era_title_text, (580, 10))
+    for i in range(len(era_list)):
+        era_text = font.render(era_list[i][0] + ": " + str(era_list[i][1]) + " Generations", True, (0, 0, 0))
+        screen.blit(era_text, (580, 30 + (i*20)))
 
 
 pygame.init()
@@ -170,13 +205,15 @@ background_color = pygame.Color(245, 245, 245)  # Off-White
 button_color = pygame.Color(0, 153, 255)  # Sky Blue
 button_hover_color = pygame.Color(0, 102, 204)  # Deep Blue
 
+era_list = []
+
 dom_text, res_text, new_text, gen_text = None, None, None, None
 
 dom_allele_count = 0
 res_allele_count = 0
 selection_type = ""
 
-dom_list, res_list, new_list, gen_list = [], [], [], []
+dom_list, res_list, new_list, gen_list, title_list = [], [], [], [], []
 fig, ax = plt.subplots()
 resized_graph_surface = None
 
@@ -192,6 +229,7 @@ res_allele_input_text = font.render("Recessive Allele Count", True, (0, 0, 0))
 generations_input_text = font.render("Generations", True, (0, 0, 0))
 
 start_button = Button(10, 300, 200, 50, "Start Simulation", font, start_handler)
+add_button = Button(220, 300, 200, 50, "Add", font, add_handler)
 ns_button = Button(10, 140, 175, 60, "Natural Selection", font, lambda: selection_handler("Natural Selection"))
 as_button = Button(195, 140, 175, 60, "Artificial Selection", font, lambda: selection_handler("Artificial Selection"))
 be_button = Button(10, 215, 125, 60, "Bottleneck Effect", font, lambda: selection_handler("Bottleneck Effect"))
@@ -218,6 +256,7 @@ while running:
             gf_button.handle_event(event)
             mu_button.handle_event(event)
             end_button.handle_event(event)
+            add_button.handle_event(event)
             
         screen.fill(background_color)
         dom_allele_input.draw()
@@ -230,8 +269,11 @@ while running:
         gf_button.draw(screen)
         mu_button.draw(screen)
         end_button.draw(screen)
-        if selection_type != "" and dom_allele_input.text != "" and res_allele_input.text != "" and generations_input.text != "":
+        if dom_allele_input.text != "" and res_allele_input.text != "" and era_list != []:
             start_button.draw(screen)
+        if selection_type != "" and generations_input.text != "":
+            add_button.draw(screen)
+        draw_eras()
         selection_type_text = font.render("Microevolutionary Process: " + selection_type, True, (0, 0, 0))
         screen.blit(selection_type_text, (10, 280))
         screen.blit(dom_allele_input_text, (10, 20))
@@ -245,7 +287,6 @@ while running:
             restart_button.handle_event(event)
             end_button.handle_event(event)
 
-        font = pygame.font.Font(None, 30)
         screen.fill(background_color)   
         if index < len(dom_list)-1:
             index += 1
@@ -255,10 +296,10 @@ while running:
         end_button.draw(screen)
 
         #3 alleles
-        if selection_type == "Mutation" or selection_type == "Gene Flow":
+        if title_list[index] == "Mutation" or title_list[index] == "Gene Flow":
             if index <= len(dom_list)-1:
                 # Update the graph and get the updated graph object
-                graph = update_graph_three_alleles(selection_type)
+                graph = update_graph_three_alleles(title_list[index])
 
                 # Convert the Matplotlib figure to a Pygame surface
                 canvas = FigureCanvas(graph.figure)
@@ -287,7 +328,7 @@ while running:
                     d_count += 1
                 elif allele == 'a':
                     r_count += 1
-                elif allele == 'M':
+                elif allele == 'M' or allele == 'B':
                     n_count += 1
             dom_text = font.render("Dominant Allele Count: " + str(d_count), True, (0, 0, 0))
             res_text = font.render("Recessive Allele Count: " + str(r_count), True, (0, 0, 0))
@@ -302,7 +343,7 @@ while running:
         else:
             if index <= len(dom_list)-1:
                 # Update the graph and get the updated graph object
-                graph = update_graph_two_alleles(selection_type)
+                graph = update_graph_two_alleles(title_list[index])
 
                 # Convert the Matplotlib figure to a Pygame surface
                 canvas = FigureCanvas(graph.figure)
