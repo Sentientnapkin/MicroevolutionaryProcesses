@@ -1,7 +1,6 @@
 import MicroevolutionaryProcesses as mp
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
 import pygame
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import time
@@ -59,43 +58,30 @@ class Button:
         screen.blit(text_surface, text_rect)
 
 x,y1,y2, y3 = [],[],[], []
-def update_graph_two_alleles(title):
-    ax.clear()
-    ax.set_xlabel("Generation")
-    ax.set_ylabel("Allele Frequency")
-    ax.set_title(title)
-    x.append(index+1)
-    y1.append(dom_list[index])
-    y2.append(res_list[index])
-    y3.append(new_list[index])
-    ax.plot(x, y1, color="red", label="Dominant Allele")
-    ax.plot(x, y2, color="yellow", label="Recessive Allele")
-    ax.legend(loc="upper center", bbox_to_anchor=(0.1,1.15),
-                fancybox=True, shadow=True)
-
-    return ax
-
 def update_graph_three_alleles(title):
     ax.clear()
     ax.set_xlabel("Generation")
     ax.set_ylabel("Allele Frequency")
     ax.set_title(title)
+    ax.title.set_position([.7, 1.05])
     x.append(index+1)
     y1.append(dom_list[index])
     y2.append(res_list[index])
     y3.append(new_list[index])
     ax.plot(x, y1, color="red", label="Dominant Allele")
     ax.plot(x, y2, color="yellow", label="Recessive Allele")
-    ax.plot(x, y3, color="blue", label="New Allele")
-    ax.legend(loc="upper center", bbox_to_anchor=(0.1,1.15),
+    if max(y3) != 0:
+        ax.plot(x, y3, color="blue", label="New Allele")
+    ax.legend(loc="upper center", bbox_to_anchor=(0.2,1.15),
                 fancybox=True, shadow=True)
+    
+    time.sleep(1)
 
     return ax
 
 selection_types = {
     "Natural Selection": mp.natural_selection,
     "Artificial Selection": mp.artificial_selection,
-    "Sexual Selection": mp.sexual_selection,
     "Bottleneck Effect": mp.bottleneck_effect,
     "Founder Effect": mp.founder_effect,
     "Gene Flow": mp.gene_flow,
@@ -108,8 +94,6 @@ def selection_handler(button_selection_type):
         selection_type = "Natural Selection"
     elif button_selection_type == "Artificial Selection":
         selection_type = "Artificial Selection"
-    elif button_selection_type == "Sexual Selection":
-        selection_type = "Sexual Selection"
     elif button_selection_type == "Bottleneck Effect":
         selection_type = "Bottleneck Effect"
     elif button_selection_type == "Founder Effect":
@@ -151,33 +135,26 @@ def start_simulation(dom_allele_count, res_allele_count):
     for i in range(res_allele_count):
         initial_pop.append('a')    
     for era in era_list:
-        if era[0] == "Mutation" or era[0] == "Gene Flow":  
-            g_list, d_list, r_list, n_list = selection_types[era[0]](initial_pop, era[1])    
-        else:
-            g_list, d_list, r_list = selection_types[era[0]](initial_pop, era[1])
+        g_list, d_list, r_list, n_list = selection_types[era[0]](initial_pop, era[1])    
         for i in range(len(g_list)):
             title_list.append(era[0])
             gen_list.append(g_list[i])
             dom_list.append(d_list[i])
             res_list.append(r_list[i])
-            if era[0] == "Mutation" or era[0] == "Gene Flow":
-                new_list.append(n_list[i])
-            else:
-                new_list.append(0)
+            new_list.append(n_list[i])
         g_list, d_list, r_list, n_list = [], [], [], []    
         initial_pop = gen_list[-1]
 
     x, y1, y2, y3 = [],[],[], []
-    era_list = []   
     ready_to_run = True
 
 def toggle_ready_to_run():
     global ready_to_run
-    global gen_list, dom_list, res_list, new_list, title_list
+    global gen_list, dom_list, res_list, new_list, title_list, era_list
     screen.fill(background_color)
     ready_to_run = not ready_to_run
     if not ready_to_run:
-        gen_list, dom_list, res_list, new_list, title_list = [], [], [], [], []
+        gen_list, dom_list, res_list, new_list, title_list, era_list = [], [], [], [], [], []
         
 
 def draw_eras():
@@ -187,6 +164,15 @@ def draw_eras():
     for i in range(len(era_list)):
         era_text = font.render(era_list[i][0] + ": " + str(era_list[i][1]) + " Generations", True, (0, 0, 0))
         screen.blit(era_text, (580, 30 + (i*20)))
+
+def draw_switches():
+    global era_list
+    total_generations = 0
+    for i in range(len(era_list)):
+        era_text = font.render("Generation " + str(total_generations) + ": " + str(era_list[i][0]), True, (0, 0, 0))
+        screen.blit(era_text, (10, 200 + (i*20)))
+        total_generations += era_list[i][1]
+
 
 
 pygame.init()
@@ -288,6 +274,7 @@ while running:
             end_button.handle_event(event)
 
         screen.fill(background_color)   
+        draw_switches()
         if index < len(dom_list)-1:
             index += 1
         else:
@@ -295,34 +282,33 @@ while running:
 
         end_button.draw(screen)
 
-        #3 alleles
-        if title_list[index] == "Mutation" or title_list[index] == "Gene Flow":
-            if index <= len(dom_list)-1:
-                # Update the graph and get the updated graph object
-                graph = update_graph_three_alleles(title_list[index])
+        if index <= len(dom_list)-1:
+            # Update the graph and get the updated graph object
+            graph = update_graph_three_alleles(title_list[index])
 
-                # Convert the Matplotlib figure to a Pygame surface
-                canvas = FigureCanvas(graph.figure)
-                canvas.draw()
+            # Convert the Matplotlib figure to a Pygame surface
+            canvas = FigureCanvas(graph.figure)
+            canvas.draw()
 
-                # Convert the canvas to a Pygame surface
-                graph_array = np.frombuffer(canvas.renderer.tostring_rgb(), dtype=np.uint8)
-                graph_array = graph_array.reshape((1280,960)[::-1] + (3,))
+            # Convert the canvas to a Pygame surface
+            graph_array = np.frombuffer(canvas.renderer.tostring_rgb(), dtype=np.uint8)
+            graph_array = graph_array.reshape((1280,960)[::-1] + (3,))
 
-                # Create a Pygame surface from the array
-                graph_surface = pygame.surfarray.make_surface(graph_array)
+            # Create a Pygame surface from the array
+            graph_surface = pygame.surfarray.make_surface(graph_array)
 
-                graph_surface = pygame.transform.flip(graph_surface, False, True)
-                graph_surface = pygame.transform.rotate(graph_surface, 270)
+            graph_surface = pygame.transform.flip(graph_surface, False, True)
+            graph_surface = pygame.transform.rotate(graph_surface, 270)
 
-                resized_graph_surface = pygame.transform.scale(graph_surface, (640, 480))
+            resized_graph_surface = pygame.transform.scale(graph_surface, (640, 480))
 
-            # Blit the graph surface onto the Pygame window
-            screen.blit(resized_graph_surface, (300, 0))
+        # Blit the graph surface onto the Pygame window
+        screen.blit(resized_graph_surface, (300, 0))
 
-            d_count = 0
-            r_count = 0
-            n_count = 0
+        d_count = 0
+        r_count = 0
+        n_count = 0
+        if len(gen_list) > 0:
             for allele in gen_list[index]:
                 if allele == 'A':
                     d_count += 1
@@ -336,55 +322,12 @@ while running:
             gen_text = font.render("Generation: " + str(index+1), True, (0, 0, 0))
             screen.blit(dom_text, (10, 10))
             screen.blit(res_text, (10, 30))
-            screen.blit(new_text, (10, 50))
-            screen.blit(gen_text, (10, 70))
-
-        #2 alleles
-        else:
-            if index <= len(dom_list)-1:
-                # Update the graph and get the updated graph object
-                graph = update_graph_two_alleles(title_list[index])
-
-                # Convert the Matplotlib figure to a Pygame surface
-                canvas = FigureCanvas(graph.figure)
-                canvas.draw()
-
-                # Convert the canvas to a Pygame surface
-                graph_array = np.frombuffer(canvas.renderer.tostring_rgb(), dtype=np.uint8)
-                graph_array = graph_array.reshape((1280,960)[::-1] + (3,))
-
-                # Create a Pygame surface from the array
-                graph_surface = pygame.surfarray.make_surface(graph_array)
-
-                graph_surface = pygame.transform.flip(graph_surface, False, True)
-                graph_surface = pygame.transform.rotate(graph_surface, 270)
-
-                resized_graph_surface = pygame.transform.scale(graph_surface, (640, 480))
-
-            # Blit the graph surface onto the Pygame window
-            screen.blit(resized_graph_surface, (300, 0))
-
-
-            d_count = 0
-            r_count = 0
-            for allele in gen_list[index]:
-                if allele == 'A':
-                    d_count += 1
-                else:
-                    r_count += 1
-            dom_text = font.render("Dominant Allele Count: " + str(d_count), True, (0, 0, 0))
-            res_text = font.render("Recessive Allele Count: " + str(r_count), True, (0, 0, 0))
-            gen_text = font.render("Generation: " + str(index+1), True, (0, 0, 0))
-            screen.blit(dom_text, (10, 10))
-            screen.blit(res_text, (10, 30))
-            screen.blit(gen_text, (10, 70))   
-
-
-        time.sleep(1)
+            if max(new_list) != 0:
+                screen.blit(new_text, (10, 50))
+            screen.blit(gen_text, (10, 70)) 
 
     pygame.display.update()
 
     clock.tick(60)  # Limit the frame rate to 60 FPS    
 
 pygame.quit()
-
