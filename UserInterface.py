@@ -12,12 +12,14 @@ def natural_selection(alleles, generations):
     dom_list = []
     res_list = []
     new_list = []
+    mut_list = []
     gen_list = []
     for gen in range(generations):
         pairs = []
         allele_dom_count = 0
         allele_res_count = 0
         allele_new_count = 0
+        allele_mut_count = 0
         gen_list.append(copy.deepcopy(alleles))
         while len(alleles) > 0:
             allele1 = random.choice(alleles)
@@ -25,8 +27,10 @@ def natural_selection(alleles, generations):
                 allele_dom_count += 1
             elif allele1 == 'a':
                 allele_res_count += 1
-            else:
+            elif allele1 == 'B':
                 allele_new_count += 1
+            else:
+                allele_mut_count += 1
             alleles.remove(allele1)
 
             if len(alleles) == 0:
@@ -37,18 +41,22 @@ def natural_selection(alleles, generations):
                 allele_dom_count += 1
             elif allele2 == 'a':
                 allele_res_count += 1
-            else:
+            elif allele2 == 'B':
                 allele_new_count += 1
+            else:
+                allele_mut_count += 1
             alleles.remove(allele2)
 
             pairs.append([allele1, allele2])
 
-        allele_dom_freq = allele_dom_count / (allele_dom_count + allele_res_count + allele_new_count)
+        allele_dom_freq = allele_dom_count / (allele_dom_count + allele_res_count + allele_new_count + allele_mut_count)
         dom_list.append(allele_dom_freq)
-        allele_res_freq = allele_res_count / (allele_dom_count + allele_res_count + allele_new_count)
+        allele_res_freq = allele_res_count / (allele_dom_count + allele_res_count + allele_new_count + allele_mut_count)
         res_list.append(allele_res_freq)
-        allele_new_freq = allele_new_count / (allele_dom_count + allele_res_count + allele_new_count)
+        allele_new_freq = allele_new_count / (allele_dom_count + allele_res_count + allele_new_count + allele_mut_count)
         new_list.append(allele_new_freq)
+        allele_mut_freq = allele_mut_count / (allele_dom_count + allele_res_count + allele_new_count + allele_mut_count)
+        mut_list.append(allele_mut_freq)
 
         next_generation = []
         for pair in pairs:
@@ -63,19 +71,21 @@ def natural_selection(alleles, generations):
 
         alleles = next_generation
 
-    return gen_list, dom_list, res_list, new_list
+    return gen_list, dom_list, res_list, new_list, mut_list
 
 
 def artificial_selection(alleles, generations):
     dom_list = []
     res_list = []
     new_list = []
+    mut_list = []
     gen_list = []
     for gen in range(generations):
         pairs = []
         allele_dom_count = 0
         allele_res_count = 0
         allele_new_count = 0
+        allele_mut_count = 0
         gen_list.append(copy.deepcopy(alleles))
         while len(alleles) > 0:
             allele1 = random.choice(alleles)
@@ -83,8 +93,10 @@ def artificial_selection(alleles, generations):
                 allele_dom_count += 1
             elif allele1 == 'a':
                 allele_res_count += 1
-            else:
+            elif allele1 == 'B':
                 allele_new_count += 1
+            else:
+                allele_mut_count += 1
             alleles.remove(allele1)
 
             if len(alleles) == 0:
@@ -95,18 +107,22 @@ def artificial_selection(alleles, generations):
                 allele_dom_count += 1
             elif allele2 == 'a':
                 allele_res_count += 1
-            else:
+            elif allele2 == 'B':
                 allele_new_count += 1
+            else:
+                allele_mut_count += 1
             alleles.remove(allele2)
 
             pairs.append([allele1, allele2])
 
-        allele_dom_freq = allele_dom_count / (allele_dom_count + allele_res_count + allele_new_count)
+        allele_dom_freq = allele_dom_count / (allele_dom_count + allele_res_count + allele_new_count + allele_mut_count)
         dom_list.append(allele_dom_freq)
-        allele_res_freq = allele_res_count / (allele_dom_count + allele_res_count + allele_new_count)
+        allele_res_freq = allele_res_count / (allele_dom_count + allele_res_count + allele_new_count + allele_mut_count)
         res_list.append(allele_res_freq)
-        allele_new_freq = allele_new_count / (allele_dom_count + allele_res_count + allele_new_count)
+        allele_new_freq = allele_new_count / (allele_dom_count + allele_res_count + allele_new_count + allele_mut_count)
         new_list.append(allele_new_freq)
+        allele_mut_freq = allele_mut_count / (allele_dom_count + allele_res_count + allele_new_count + allele_mut_count)
+        mut_list.append(allele_mut_freq)
 
         next_generation = []
         for pair in pairs:
@@ -119,7 +135,7 @@ def artificial_selection(alleles, generations):
 
         alleles = next_generation
 
-    return gen_list, dom_list, res_list, new_list
+    return gen_list, dom_list, res_list, new_list, mut_list
 
 
 def founder_effect(alleles, generations):
@@ -134,6 +150,7 @@ def genetic_drift(alleles, generations, survivor_count):
     dom_list = []
     res_list = []
     new_list = []
+    mut_list = []
     gen_list = []
 
     survivors = []
@@ -146,6 +163,7 @@ def genetic_drift(alleles, generations, survivor_count):
     allele_dom_count = 0
     allele_res_count = 0
     allele_new_count = 0
+    allele_mut_count = 0
     pairs = []
     for i in range(10):
         allele1 = random.choice(alleles)
@@ -153,25 +171,31 @@ def genetic_drift(alleles, generations, survivor_count):
             allele_dom_count += 1
         elif allele1 == 'a':
             allele_res_count += 1
-        else:
+        elif allele1 == 'B':
             allele_new_count += 1
+        else:
+            allele_mut_count += 1
 
         allele2 = random.choice(alleles)
         if allele2 == 'A':
             allele_dom_count += 1
         elif allele2 == 'a':
             allele_res_count += 1
-        else:
+        elif allele2 == 'B':
             allele_new_count += 1
+        else:
+            allele_mut_count += 1
 
         pairs.append([allele1, allele2])
 
-    allele_dom_freq = allele_dom_count / (allele_dom_count + allele_res_count + allele_new_count)
+    allele_dom_freq = allele_dom_count / (allele_dom_count + allele_res_count + allele_new_count + allele_mut_count)
     dom_list.append(allele_dom_freq)
-    allele_res_freq = allele_res_count / (allele_dom_count + allele_res_count + allele_new_count)
+    allele_res_freq = allele_res_count / (allele_dom_count + allele_res_count + allele_new_count + allele_mut_count)
     res_list.append(allele_res_freq)
-    allele_new_freq = allele_new_count / (allele_dom_count + allele_res_count + allele_new_count)
+    allele_new_freq = allele_new_count / (allele_dom_count + allele_res_count + allele_new_count + allele_mut_count)
     new_list.append(allele_new_freq)
+    allele_mut_freq = allele_mut_count / (allele_dom_count + allele_res_count + allele_new_count + allele_mut_count)
+    mut_list.append(allele_mut_freq)
 
     next_generation = []
     for pair in pairs:
@@ -188,35 +212,38 @@ def genetic_drift(alleles, generations, survivor_count):
     gen_list.append(copy.deepcopy(alleles))
 
     for gen in range(generations - 1):
-        alleles, dom_freq, res_freq, new_freq = standard_reproduction(alleles)
+        alleles, dom_freq, res_freq, new_freq, mut_freq = standard_reproduction(alleles)
         dom_list.append(dom_freq)
         res_list.append(res_freq)
         new_list.append(new_freq)
+        mut_list.append(mut_freq)
         gen_list.append(copy.deepcopy(alleles))
 
     gen_list.pop()     
 
-    return gen_list, dom_list, res_list, new_list
+    return gen_list, dom_list, res_list, new_list, mut_list
 
 
 def gene_flow(alleles, generations):
     gen_list = []
     dom_list = []
     res_list = []
+    mut_list = []
     new_list = []
     for i in range(6):
         alleles.append('B')
 
     gen_list.append(copy.deepcopy(alleles))
     for gen in range(generations):
-        alleles, dom_freq, res_freq, new_freq = gene_flow_wrapper(alleles)
+        alleles, dom_freq, res_freq, new_freq, mut_freq = gene_flow_wrapper(alleles)
         dom_list.append(dom_freq)
         res_list.append(res_freq)
         new_list.append(new_freq)
+        mut_list.append(mut_freq)
         gen_list.append(copy.deepcopy(alleles))
 
     gen_list.pop()
-    return gen_list, dom_list, res_list, new_list    
+    return gen_list, dom_list, res_list, new_list, mut_list  
 
 
 def gene_flow_wrapper(alleles):
@@ -224,14 +251,17 @@ def gene_flow_wrapper(alleles):
     allele_dom_count = 0
     allele_res_count = 0
     allele_new_count = 0
+    allele_mut_count = 0
     while len(alleles) > 0:
         allele1 = random.choice(alleles)
         if allele1 == 'A':
             allele_dom_count += 1
         elif allele1 == 'a':
             allele_res_count += 1
-        else:
+        elif allele1 == 'B':
             allele_new_count += 1
+        else:
+            allele_mut_count += 1
         alleles.remove(allele1)
 
         if len(alleles) == 0:
@@ -242,15 +272,18 @@ def gene_flow_wrapper(alleles):
             allele_dom_count += 1
         elif allele2 == 'a':
             allele_res_count += 1
-        else:
+        elif allele2 == 'B':
             allele_new_count += 1
+        else:
+            allele_mut_count += 1
         alleles.remove(allele2)
 
         pairs.append([allele1, allele2])
 
-    allele_dom_freq = allele_dom_count / (allele_dom_count + allele_res_count + allele_new_count)
-    allele_res_freq = allele_res_count / (allele_dom_count + allele_res_count + allele_new_count)
-    allele_new_freq = allele_new_count / (allele_dom_count + allele_res_count + allele_new_count)
+    allele_dom_freq = allele_dom_count / (allele_dom_count + allele_res_count + allele_new_count + allele_mut_count)
+    allele_res_freq = allele_res_count / (allele_dom_count + allele_res_count + allele_new_count + allele_mut_count)
+    allele_new_freq = allele_new_count / (allele_dom_count + allele_res_count + allele_new_count + allele_mut_count)
+    allele_mut_freq = allele_mut_count / (allele_dom_count + allele_res_count + allele_new_count + allele_mut_count)
 
     next_generation = []
     for pair in pairs:
@@ -264,27 +297,29 @@ def gene_flow_wrapper(alleles):
             next_generation.append(pair[rand])
 
     alleles = next_generation
-    return alleles, allele_dom_freq, allele_res_freq, allele_new_freq
+    return alleles, allele_dom_freq, allele_res_freq, allele_new_freq, allele_mut_freq
 
 
 def mutation(alleles, generations):
     gen_list = []
     dom_list = []
     res_list = []
+    mut_list = []
     new_list = []
     alleles.remove(random.choice(alleles))
     alleles.append('M')
 
     gen_list.append(copy.deepcopy(alleles))
     for gen in range(generations):
-        alleles, dom_freq, res_freq, new_freq = mutation_wrapper(alleles)
+        alleles, dom_freq, res_freq, new_freq, mut_freq = mutation_wrapper(alleles)
         gen_list.append(copy.deepcopy(alleles))
         dom_list.append(dom_freq)
         res_list.append(res_freq)
         new_list.append(new_freq)
+        mut_list.append(mut_freq)
 
     gen_list.pop()
-    return gen_list, dom_list, res_list, new_list
+    return gen_list, dom_list, res_list, new_list, mut_list
 
 
 def mutation_wrapper(alleles):
@@ -292,12 +327,15 @@ def mutation_wrapper(alleles):
     allele_dom_count = 0
     allele_res_count = 0
     allele_mut_count = 0
+    allele_new_count = 0
     while len(alleles) > 0:
         allele1 = random.choice(alleles)
         if allele1 == 'A':
             allele_dom_count += 1
         elif allele1 == 'a':
             allele_res_count += 1
+        elif allele1 == 'B':
+            allele_new_count += 1
         else:
             allele_mut_count += 1
         alleles.remove(allele1)
@@ -310,15 +348,18 @@ def mutation_wrapper(alleles):
             allele_dom_count += 1
         elif allele2 == 'a':
             allele_res_count += 1
+        elif allele2 == 'B':
+            allele_new_count += 1
         else:
             allele_mut_count += 1
         alleles.remove(allele2)
 
         pairs.append([allele1, allele2])
 
-    allele_dom_freq = allele_dom_count / (allele_dom_count + allele_res_count + allele_mut_count)
-    allele_res_freq = allele_res_count / (allele_dom_count + allele_res_count + allele_mut_count)
-    allele_mut_freq = allele_mut_count / (allele_dom_count + allele_res_count + allele_mut_count)
+    allele_dom_freq = allele_dom_count / (allele_dom_count + allele_res_count + allele_mut_count + allele_new_count)
+    allele_res_freq = allele_res_count / (allele_dom_count + allele_res_count + allele_mut_count + allele_new_count)
+    allele_mut_freq = allele_mut_count / (allele_dom_count + allele_res_count + allele_mut_count + allele_new_count)
+    allele_new_freq = allele_new_count / (allele_dom_count + allele_res_count + allele_mut_count + allele_new_count)
 
     next_generation = []
     for pair in pairs:
@@ -335,7 +376,7 @@ def mutation_wrapper(alleles):
                 next_generation.append(pair[rand])
 
     alleles = next_generation
-    return alleles, allele_dom_freq, allele_res_freq, allele_mut_freq
+    return alleles, allele_dom_freq, allele_res_freq, allele_new_freq, allele_mut_freq
 
 
 def standard_reproduction(alleles):
@@ -343,14 +384,17 @@ def standard_reproduction(alleles):
     allele_dom_count = 0
     allele_res_count = 0
     allele_new_count = 0
+    allele_mut_count = 0
     while len(alleles) > 0:
         allele1 = random.choice(alleles)
         if allele1 == 'A':
             allele_dom_count += 1
         elif allele1 == 'a':
             allele_res_count += 1
-        else:
+        elif allele1 == 'B':
             allele_new_count += 1
+        else:
+            allele_mut_count += 1
         alleles.remove(allele1)
 
         if len(alleles) == 0:
@@ -361,15 +405,18 @@ def standard_reproduction(alleles):
             allele_dom_count += 1
         elif allele2 == 'a':
             allele_res_count += 1
-        else:
+        elif allele2 == 'B':
             allele_new_count += 1
+        else:
+            allele_mut_count += 1
         alleles.remove(allele2)
 
         pairs.append([allele1, allele2])
 
-    allele_dom_freq = allele_dom_count / (allele_dom_count + allele_res_count)
-    allele_res_freq = allele_res_count / (allele_dom_count + allele_res_count)
-    allele_new_freq = allele_new_count / (allele_dom_count + allele_res_count)
+    allele_dom_freq = allele_dom_count / (allele_dom_count + allele_res_count + allele_new_count + allele_mut_count)
+    allele_res_freq = allele_res_count / (allele_dom_count + allele_res_count + allele_new_count + allele_mut_count)
+    allele_new_freq = allele_new_count / (allele_dom_count + allele_res_count + allele_new_count + allele_mut_count)
+    allele_mut_freq = allele_mut_count / (allele_dom_count + allele_res_count + allele_new_count + allele_mut_count)
 
     next_generation = []
     for pair in pairs:
@@ -383,7 +430,7 @@ def standard_reproduction(alleles):
             next_generation.append(pair[rand])
 
     alleles = next_generation
-    return alleles, allele_dom_freq, allele_res_freq, allele_new_freq
+    return alleles, allele_dom_freq, allele_res_freq, allele_new_freq, allele_mut_freq
 
 
 class InputBox:
@@ -438,8 +485,8 @@ class Button:
         text_rect = text_surface.get_rect(center=self.rect.center)
         screen.blit(text_surface, text_rect)
 
-x,y1,y2, y3 = [],[],[], []
-def update_graph_three_alleles(title):
+x,y1,y2,y3,y4 = [],[],[], [], []
+def update_graph(title):
     ax.clear()
     ax.set_xlabel("Generation")
     ax.set_ylabel("Allele Frequency")
@@ -449,10 +496,13 @@ def update_graph_three_alleles(title):
     y1.append(dom_list[index])
     y2.append(res_list[index])
     y3.append(new_list[index])
+    y4.append(mut_list[index])
     ax.plot(x, y1, color="red", label="Dominant Allele")
     ax.plot(x, y2, color="yellow", label="Recessive Allele")
     if max(y3) != 0:
-        ax.plot(x, y3, color="blue", label="New Allele")
+        ax.plot(x, y3, color="green", label="New Allele")
+    if max(y4) != 0:
+        ax.plot(x, y4, color="blue", label="Mutated Allele")
     ax.legend(loc="upper center", bbox_to_anchor=(0.2,1.15),
                 fancybox=True, shadow=True)
     
@@ -506,9 +556,9 @@ def add_handler():
 def start_simulation(dom_allele_count, res_allele_count):
     global index, dom_list, res_list, gen_list, new_list, selection_type, ready_to_run
     global fig, ax
-    global y1, y2, y3, x
+    global y1, y2, y3, x, y4
     global era_list
-    g_list, d_list, r_list, n_list = [], [], [], []
+    g_list, d_list, r_list, n_list, m_list = [], [], [], [], []
     index = -1
     initial_pop = []
     for i in range(dom_allele_count):
@@ -516,26 +566,27 @@ def start_simulation(dom_allele_count, res_allele_count):
     for i in range(res_allele_count):
         initial_pop.append('a')    
     for era in era_list:
-        g_list, d_list, r_list, n_list = selection_types[era[0]](initial_pop, era[1])    
+        g_list, d_list, r_list, n_list, m_list = selection_types[era[0]](initial_pop, era[1])    
         for i in range(len(g_list)):
             title_list.append(era[0])
             gen_list.append(g_list[i])
             dom_list.append(d_list[i])
             res_list.append(r_list[i])
             new_list.append(n_list[i])
-        g_list, d_list, r_list, n_list = [], [], [], []    
+            mut_list.append(m_list[i])
+        g_list, d_list, r_list, n_list, m_list = [], [], [], [], []  
         initial_pop = gen_list[-1]
 
-    x, y1, y2, y3 = [],[],[], []
+    x, y1, y2, y3, y4 = [],[],[],[], []
     ready_to_run = True
 
 def toggle_ready_to_run():
     global ready_to_run
-    global gen_list, dom_list, res_list, new_list, title_list, era_list
+    global gen_list, dom_list, res_list, new_list, title_list, era_list, mut_list
     screen.fill(background_color)
     ready_to_run = not ready_to_run
     if not ready_to_run:
-        gen_list, dom_list, res_list, new_list, title_list, era_list = [], [], [], [], [], []
+        gen_list, dom_list, res_list, new_list, mut_list, title_list, era_list = [], [], [], [], [], [], []
         
 
 def draw_eras():
@@ -557,7 +608,7 @@ def draw_switches():
 
 
 pygame.init()
-screen = pygame.display.set_mode((940, 480))
+screen = pygame.display.set_mode((960, 480))
 clock = pygame.time.Clock()
 
 # Font
@@ -574,13 +625,13 @@ button_hover_color = pygame.Color(0, 102, 204)  # Deep Blue
 
 era_list = []
 
-dom_text, res_text, new_text, gen_text = None, None, None, None
+dom_text, res_text, new_text, mut_text, gen_text = None, None, None, None, None
 
 dom_allele_count = 0
 res_allele_count = 0
 selection_type = ""
 
-dom_list, res_list, new_list, gen_list, title_list = [], [], [], [], []
+dom_list, res_list, new_list, mut_list, gen_list, title_list = [], [], [], [], [], []
 fig, ax = plt.subplots()
 resized_graph_surface = None
 
@@ -665,7 +716,7 @@ while running:
 
         if index <= len(dom_list)-1:
             # Update the graph and get the updated graph object
-            graph = update_graph_three_alleles(title_list[index])
+            graph = update_graph(title_list[index])
 
             # Convert the Matplotlib figure to a Pygame surface
             canvas = FigureCanvas(graph.figure)
@@ -689,23 +740,29 @@ while running:
         d_count = 0
         r_count = 0
         n_count = 0
+        m_count = 0
         if len(gen_list) > 0:
             for allele in gen_list[index]:
                 if allele == 'A':
                     d_count += 1
                 elif allele == 'a':
                     r_count += 1
-                elif allele == 'M' or allele == 'B':
+                elif allele == 'B':
                     n_count += 1
+                elif allele == 'M':
+                    m_count += 1
             dom_text = font.render("Dominant Allele Count: " + str(d_count), True, (0, 0, 0))
             res_text = font.render("Recessive Allele Count: " + str(r_count), True, (0, 0, 0))
             new_text = font.render("New Allele Count: " + str(n_count), True, (0, 0, 0))
+            mut_text = font.render("Mutated Allele Count: " + str(m_count), True, (0, 0, 0))
             gen_text = font.render("Generation: " + str(index+1), True, (0, 0, 0))
             screen.blit(dom_text, (10, 10))
             screen.blit(res_text, (10, 30))
             if max(new_list) != 0:
                 screen.blit(new_text, (10, 50))
-            screen.blit(gen_text, (10, 70)) 
+            if max(mut_list) != 0:
+                screen.blit(mut_text, (10, 70))
+            screen.blit(gen_text, (10, 90)) 
 
     pygame.display.update()
 

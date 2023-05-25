@@ -1,0 +1,3 @@
+([('UserInterface',
+   '/Users/School/VSCode/MicroevolutionaryProcesses/dist/UserInterface',
+   'EXECUTABLE')],)
